@@ -4,6 +4,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class InventoryPage {
 
     WebDriver driver;
@@ -36,20 +40,19 @@ public class InventoryPage {
     public void openCart() {
         driver.findElement(By.className("shopping_cart_link")).click();
     }
+
     public String getProductNameByIndex(int itemIndex) {
         return driver.findElements(itemNames).get(itemIndex).getText();
     }
 
-     public String getProductPriceByIndex(int itemIndex) {
+    public String getProductPriceByIndex(int itemIndex) {
         return driver.findElements(itemPrices).get(itemIndex).getText();
     }
 
-     public int getCartItemCount() {
+    public int getCartItemCount() {
         String badgeText = driver.findElement(cartBadge).getText();
         return Integer.parseInt(badgeText);
     }
-
-
 
     // Assertions
     public void validateInventoryPage() {
@@ -74,5 +77,36 @@ public class InventoryPage {
 
     public void validateProductSorting(String sortOption) {
         sortProductsBy(sortOption);
-     }
+
+        // Get product names
+        List<String> productNames = new ArrayList<>();
+        for (int i = 0; i < driver.findElements(itemNames).size(); i++) {
+            productNames.add(driver.findElements(itemNames).get(i).getText());
+        }
+
+        // Sort product names based on the selected option
+        List<String> sortedNames = new ArrayList<>(productNames);
+        if (sortOption.equals("Name (A to Z)")) {
+            Collections.sort(sortedNames);
+        } else if (sortOption.equals("Price (low to high)")) {
+            // Extract prices and sort by price
+            List<Double> prices = new ArrayList<>();
+            for (int i = 0; i < driver.findElements(itemPrices).size(); i++) {
+                prices.add(Double.parseDouble(driver.findElements(itemPrices).get(i).getText().replace("$", "")));
+            }
+
+            // Sort prices and compare with the product list
+            List<String> sortedPrices = new ArrayList<>();
+            for (Double price : prices) {
+                sortedPrices.add("$" + price);
+            }
+            Collections.sort(sortedPrices);
+
+            // Verify that products are sorted by price
+            Assert.assertEquals(sortedPrices, driver.findElements(itemPrices).get(0).getText(), "Products are not sorted by price.");
+        }
+
+        // Verify that the sorted list matches the displayed list
+        Assert.assertEquals(productNames, sortedNames, "Products are not sorted correctly.");
+    }
 }
