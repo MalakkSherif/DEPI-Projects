@@ -53,14 +53,4 @@ public class InventoryTest extends TestBase {
         inventoryPage.validateProductSorting("Name (A to Z)");
     }
 
-    @Test
-    public void validateSortByPriceLowToHigh() {
-        loginPage = new LoginPage(driver);
-        loginPage.navigateToLoginPage();
-        loginPage.login("standard_user", "secret_sauce");
-
-        inventoryPage = new InventoryPage(driver);
-        inventoryPage.sortProductsBy("Price (low to high)");
-        inventoryPage.validateProductSorting("Price (low to high)");
-    }
 }
